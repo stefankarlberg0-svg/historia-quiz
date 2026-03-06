@@ -111,6 +111,13 @@
         .modal-btn.primary{background:var(--sea);color:#fff}
         .modal-btn.secondary{background:#eee;color:#666}
         #printArea{display:none}
+        .sticky-progress{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(0,0,0,.1);padding:10px 20px;display:flex;align-items:center;gap:12px;transform:translateY(-100%);transition:transform .3s ease}
+        .sticky-progress.visible{transform:translateY(0)}
+        .sticky-progress .sp-label{font-size:.85rem;font-weight:700;color:var(--ink);white-space:nowrap}
+        .sticky-progress .sp-track{flex:1;height:8px;background:#e8e2d8;border-radius:20px;overflow:hidden}
+        .sticky-progress .sp-fill{height:100%;border-radius:20px;transition:width .4s ease;width:0}
+        .sticky-progress .sp-fill.e{background:var(--tab-e)}.sticky-progress .sp-fill.c{background:var(--tab-c)}.sticky-progress .sp-fill.a{background:var(--tab-a)}
+        .sticky-progress .sp-count{font-size:.85rem;font-weight:700;color:#999;white-space:nowrap}
         .footer{text-align:center;padding:32px 20px;color:#aaa;font-size:.85rem}
         @media print{
             body{background:#fff !important;padding:0 !important;font-size:11pt}
@@ -131,6 +138,12 @@
     </style>
 </head>
 <body>
+
+<div class="sticky-progress" id="stickyProg">
+    <span class="sp-label" id="spLabel">E-niv&#229;</span>
+    <div class="sp-track"><div class="sp-fill e" id="spFill"></div></div>
+    <span class="sp-count" id="spCount">0 / 8</span>
+</div>
 
 <div class="modal-overlay" id="nameModal">
     <div class="modal">
@@ -293,6 +306,33 @@ document.getElementById("tabBar").addEventListener("click", function(e) {
     btn.className = "tab " + colorMap[lv];
     for (var i = 0; i < allPanels.length; i++) allPanels[i].className = "panel";
     document.getElementById("panel-" + lv).className = "panel active";
+    activeLv = lv;
+    updateSticky(lv);
+}, false);
+
+/* STICKY PROGRESS */
+var stickyEl = document.getElementById("stickyProg");
+var spLabel = document.getElementById("spLabel");
+var spFill = document.getElementById("spFill");
+var spCount = document.getElementById("spCount");
+var activeLv = "e";
+var levelNames = {e:"E-niv\u00e5",c:"C-niv\u00e5",a:"A-niv\u00e5"};
+
+function updateSticky(lv) {
+    var b = qBlocks(lv), tot = b.length, ans = answered(lv);
+    var pct = tot ? Math.round(ans/tot*100) : 0;
+    spLabel.textContent = levelNames[lv];
+    spFill.className = "sp-fill " + lv;
+    spFill.style.width = pct + "%";
+    spCount.textContent = ans + " / " + tot;
+}
+
+window.addEventListener("scroll", function() {
+    var tabBar = document.getElementById("tabBar");
+    if (!tabBar) return;
+    var rect = tabBar.getBoundingClientRect();
+    if (rect.bottom < 0) stickyEl.className = "sticky-progress visible";
+    else stickyEl.className = "sticky-progress";
 }, false);
 
 /* --- HELPERS --- */
@@ -317,6 +357,7 @@ function prog(lv) {
     var lock = document.getElementById("lock-" + lv);
     if (ans === tot && tot > 0 && !unlocked[lv]) lock.className = "level-lock visible";
     else if (ans < tot) lock.className = "level-lock";
+    if (lv === activeLv) updateSticky(lv);
 }
 
 /* --- CLICK OPTIONS (E) --- */
