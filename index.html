@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quiz: Kolonialism och Slavhandel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@400;600;700&display=swap');
+        :root{--ink:#1a1a2e;--parchment:#f5f0e8;--parchment-dark:#e8e0d0;--sea:#2c6e6a;--sea-light:#3a8a85;--accent:#8b4513;--success:#2d6a4f;--success-bg:#d8f3dc;--danger:#9b2226;--wrong-bg:#fce4e4;--yellow:#b8860b;--yellow-bg:#fff8e1;--tab-e:#2c6e6a;--tab-c:#8b4513;--tab-a:#6b2c91;--radius:8px;--shadow-sm:0 1px 3px rgba(0,0,0,0.08);--shadow-md:0 4px 16px rgba(0,0,0,0.1)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Source Sans 3',Georgia,serif;background:var(--parchment);color:var(--ink);line-height:1.65;min-height:100vh;-webkit-text-size-adjust:100%}
+        .hero{background:var(--ink);color:var(--parchment);padding:48px 24px 40px;text-align:center;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(139,69,19,.25) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(44,110,106,.2) 0%,transparent 50%);pointer-events:none}
+        .hero h1{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,5vw,2.6rem);font-weight:400;letter-spacing:.02em;position:relative}
+        .hero .era{display:inline-block;margin-top:10px;font-size:.95rem;letter-spacing:.25em;text-transform:uppercase;opacity:.7;border-top:1px solid rgba(245,240,232,.3);padding-top:10px}
+        .main{max-width:820px;margin:0 auto;padding:0 20px 60px}
+        .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-md);padding:28px 32px;margin-top:-24px;position:relative;z-index:1}
+        .card h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.25rem;color:var(--accent);margin-bottom:14px}
+        .card ol{margin-left:20px;color:#444}.card ol li{margin:6px 0}.card ol li strong{color:var(--ink)}
+        .tabs{display:flex;gap:6px;margin-top:32px;margin-bottom:4px}
+        .tab{flex:1;padding:14px 10px;border:none;background:#fff;color:#888;font-size:.95rem;font-weight:700;font-family:inherit;border-radius:var(--radius) var(--radius) 0 0;cursor:pointer;-webkit-appearance:none;-webkit-tap-highlight-color:rgba(0,0,0,.1);transition:all .25s;border-bottom:3px solid transparent;box-shadow:var(--shadow-sm);touch-action:manipulation}
+        .tab small{display:block;font-weight:400;font-size:.8rem;margin-top:2px;opacity:.7;pointer-events:none}
+        .tab.active-e{color:var(--tab-e);border-bottom-color:var(--tab-e)}
+        .tab.active-c{color:var(--tab-c);border-bottom-color:var(--tab-c)}
+        .tab.active-a{color:var(--tab-a);border-bottom-color:var(--tab-a)}
+        .panel{display:none;background:#fff;border-radius:0 0 var(--radius) var(--radius);box-shadow:var(--shadow-md);padding:32px}
+        .panel.active{display:block}
+        .panel-title{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.3rem;margin-bottom:4px}
+        .panel-title.e{color:var(--tab-e)}.panel-title.c{color:var(--tab-c)}.panel-title.a{color:var(--tab-a)}
+        .panel-sub{color:#888;font-style:italic;margin-bottom:24px;font-size:.95rem}
+        .q-block{border:1px solid #e8e2d8;border-radius:var(--radius);padding:24px;margin-bottom:20px;transition:all .3s}
+        .q-block.answered-correct{border-color:var(--success);background:rgba(45,106,79,.03)}
+        .q-block.answered-wrong{border-color:var(--danger);background:rgba(155,34,38,.03)}
+        .q-num{font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#999;margin-bottom:8px}
+        .q-text{font-weight:700;color:var(--ink);margin-bottom:14px;font-size:1.05rem}
+        .options{margin-bottom:4px}
+        .opt{padding:12px 16px;margin:6px 0;background:var(--parchment);border-radius:6px;font-size:.95rem;color:#444;cursor:pointer;-webkit-tap-highlight-color:rgba(0,0,0,.05);touch-action:manipulation;transition:all .18s;border:2px solid transparent;user-select:none;position:relative}
+        .opt.selected{background:#e3eeee;border-color:var(--sea);color:var(--ink);font-weight:600}
+        .opt.correct-reveal{background:var(--success-bg) !important;border-color:var(--success) !important;color:var(--success) !important;font-weight:700 !important}
+        .opt.wrong-reveal{background:var(--wrong-bg) !important;border-color:var(--danger) !important;color:var(--danger) !important;text-decoration:line-through;opacity:.8}
+        .opt.disabled{pointer-events:none}
+        .q-block textarea{width:100%;min-height:80px;padding:12px 14px;border:2px solid #e8e2d8;border-radius:6px;font-family:inherit;font-size:16px;resize:vertical;line-height:1.6;transition:border-color .2s;background:#fdfcfa;-webkit-appearance:none}
+        .q-block textarea:focus{outline:none;border-color:var(--sea);background:#fff}
+        .q-block textarea.tall{min-height:140px}
+        .answer-box{margin-top:14px;padding:18px 20px;background:var(--success-bg);border-left:4px solid var(--success);border-radius:0 6px 6px 0;display:none}
+        .answer-box.show{display:block}
+        .answer-box h4{color:var(--success);margin-bottom:8px;font-size:.95rem}
+        .answer-box p{color:#333;margin-bottom:6px}.answer-box p:last-child{margin-bottom:0}
+        .answer-box .correct{font-weight:700;color:var(--success)}
+        .self-assess{margin-top:16px;padding:18px 20px;background:#f8f6f1;border:1px solid #e0dace;border-radius:6px;display:none}
+        .self-assess.show{display:block}
+        .self-assess h4{font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:12px}
+        .sa-check{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #ece8df}
+        .sa-check:last-of-type{border-bottom:none}
+        .sa-check input[type=checkbox]{margin-top:3px;width:20px;height:20px;accent-color:var(--sea);cursor:pointer;flex-shrink:0}
+        .sa-check label{font-size:.93rem;color:#444;cursor:pointer;flex:1}
+        .sa-traffic{margin-top:14px;padding:12px 16px;border-radius:6px;font-weight:700;font-size:.95rem;text-align:center;transition:all .3s}
+        .sa-traffic.green{background:var(--success-bg);color:var(--success);border:1px solid #b7e4c7}
+        .sa-traffic.yellow{background:var(--yellow-bg);color:var(--yellow);border:1px solid #ffe082}
+        .sa-traffic.red{background:var(--wrong-bg);color:var(--danger);border:1px solid #f5c6c6}
+        .sa-traffic.neutral{background:#f0ede6;color:#999;border:1px solid #ddd}
+        .level-lock{display:none;margin-top:28px;padding:28px;border:2px dashed #ccc;border-radius:var(--radius);text-align:center;background:#fdfcfa}
+        .level-lock.visible{display:block}
+        .level-lock.unlocked-state{border-color:var(--success);border-style:solid;background:var(--success-bg)}
+        .level-lock h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.2rem;margin-bottom:6px;color:var(--ink)}
+        .level-lock p{color:#888;margin-bottom:16px;font-size:.95rem}
+        .level-lock .lock-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+        .level-lock input{padding:12px 16px;font-size:16px;border:2px solid var(--parchment-dark);border-radius:var(--radius);width:180px;text-align:center;font-weight:700;letter-spacing:2px;font-family:inherit;-webkit-appearance:none}
+        .level-lock input:focus{outline:none;border-color:var(--sea)}
+        .level-lock .lock-btn{padding:12px 28px;font-size:1rem;background:var(--sea);color:#fff;border:none;border-radius:var(--radius);font-weight:700;cursor:pointer;font-family:inherit;-webkit-appearance:none;touch-action:manipulation}
+        .lock-error{color:var(--danger);font-weight:700;font-size:.9rem;margin-top:12px;display:none}
+        .lock-error.show{display:block}
+        .lock-success{color:var(--success);font-weight:700;font-size:1rem;margin-top:8px}
+        .progress-bar{margin-bottom:24px;display:flex;align-items:center;gap:12px}
+        .progress-track{flex:1;height:8px;background:#e8e2d8;border-radius:20px;overflow:hidden}
+        .progress-fill{height:100%;border-radius:20px;transition:width .4s ease;width:0}
+        .progress-fill.e{background:var(--tab-e)}.progress-fill.c{background:var(--tab-c)}.progress-fill.a{background:var(--tab-a)}
+        .progress-label{font-size:.85rem;font-weight:700;color:#999;white-space:nowrap;min-width:60px;text-align:right}
+        .level-summary{display:none;margin-top:24px}
+        .level-summary.show{display:block}
+        .summary-card{background:#fff;border:1px solid #e8e2d8;border-radius:var(--radius);padding:28px;margin-bottom:16px}
+        .summary-card h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.2rem;color:var(--ink);margin-bottom:16px}
+        .score-bar-outer{background:#eee;border-radius:20px;height:28px;overflow:hidden;margin-bottom:20px}
+        .score-bar-inner{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--sea),var(--sea-light));display:flex;align-items:center;justify-content:flex-end;padding-right:12px;font-size:.85rem;font-weight:700;color:#fff;min-width:50px;transition:width .8s ease}
+        .summary-grid{display:grid;gap:8px}
+        .summary-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:6px;background:var(--parchment);font-size:.92rem}
+        .sr-icon{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:#fff}
+        .sr-icon.right{background:var(--success)}.sr-icon.wrong{background:var(--danger)}.sr-icon.skip{background:#c9a227}
+        .sr-icon.sa-green{background:var(--success)}.sr-icon.sa-yellow{background:var(--yellow)}.sr-icon.sa-red{background:var(--danger)}.sr-icon.sa-none{background:#bbb}
+        .sr-body{flex:1}.sr-q{font-weight:700;color:var(--ink);margin-bottom:2px}.sr-detail{color:#666;font-size:.88rem}
+        .sr-your{color:var(--danger);font-weight:600}.sr-correct-text{color:var(--success);font-weight:600}
+        .rec-card{background:#fff;border:1px solid #e8e2d8;border-radius:var(--radius);padding:28px}
+        .rec-card h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.15rem;color:var(--accent);margin-bottom:14px}
+        .rec-item{padding:14px 18px;margin-bottom:10px;border-radius:6px;border-left:4px solid var(--accent);background:#fdf8f3}
+        .rec-item:last-child{margin-bottom:0}
+        .rec-topic{font-weight:700;color:var(--ink);margin-bottom:4px}
+        .rec-tip{color:#555;font-size:.93rem}
+        .rec-perfect{padding:20px;text-align:center;background:var(--success-bg);border-radius:6px;color:var(--success);font-weight:700;font-size:1.05rem}
+        .build-summary-btn,.save-btn{display:block;width:100%;margin-top:24px;padding:14px;border:none;border-radius:var(--radius);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;-webkit-appearance:none;touch-action:manipulation}
+        .build-summary-btn{background:var(--sea);color:#fff}
+        .save-btn{background:var(--ink);color:var(--parchment);width:auto;display:inline-block;padding:14px 28px;margin-top:20px}
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center;padding:20px}
+        .modal-overlay.show{display:flex}
+        .modal{background:#fff;border-radius:var(--radius);padding:32px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+        .modal h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.3rem;margin-bottom:16px;color:var(--ink)}
+        .modal label{display:block;font-weight:600;font-size:.9rem;color:#555;margin-bottom:6px;margin-top:14px}
+        .modal input{width:100%;padding:12px 14px;border:2px solid #e8e2d8;border-radius:6px;font-family:inherit;font-size:16px;-webkit-appearance:none}
+        .modal input:focus{outline:none;border-color:var(--sea)}
+        .modal-buttons{display:flex;gap:10px;margin-top:24px}
+        .modal-btn{flex:1;padding:12px;border:none;border-radius:6px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;-webkit-appearance:none;touch-action:manipulation}
+        .modal-btn.primary{background:var(--sea);color:#fff}
+        .modal-btn.secondary{background:#eee;color:#666}
+        #printArea{display:none}
+        .footer{text-align:center;padding:32px 20px;color:#aaa;font-size:.85rem}
+        @media print{
+            body{background:#fff !important;padding:0 !important;font-size:11pt}
+            .hero,.card,.tabs,.panel,.footer,.modal-overlay,.level-lock,.build-summary-btn,.save-btn,.progress-bar{display:none !important}
+            .main{display:none !important}
+            #printArea{display:block !important;padding:20px}
+            .print-header{text-align:center;border-bottom:2px solid #000;padding-bottom:16px;margin-bottom:20px}
+            .print-header h1{font-family:'DM Serif Display',serif;font-size:18pt;margin-bottom:4px}
+            .print-q{page-break-inside:avoid;margin-bottom:16px;padding:12px 0;border-bottom:1px solid #ddd}
+            .print-q-num{font-size:9pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+            .print-q-text{font-weight:700;margin-bottom:8px;font-size:11pt}
+            .print-answer{margin-bottom:4px;font-size:10pt}
+            .print-result{font-weight:700;font-size:10pt;padding:2px 8px;display:inline-block;margin-top:4px}
+            .print-student-text{margin-top:6px;font-size:10pt;white-space:pre-wrap;border-left:3px solid #ccc;padding-left:10px}
+            .print-checks{font-size:9.5pt;margin-top:4px}
+            .print-total{margin-top:24px;padding:16px;border:2px solid #000;text-align:center;font-size:14pt;font-weight:700}
+        }
+    </style>
+</head>
+<body>
+
+<div class="modal-overlay" id="nameModal">
+    <div class="modal">
+        <h3>Spara ditt resultat</h3>
+        <label for="studentName">Namn</label>
+        <input type="text" id="studentName" placeholder="F&#246;rnamn Efternamn">
+        <label for="studentClass">Klass (valfritt)</label>
+        <input type="text" id="studentClass" placeholder="T.ex. 8B">
+        <div class="modal-buttons">
+            <button class="modal-btn secondary" id="modalCancel">Avbryt</button>
+            <button class="modal-btn primary" id="modalSave">Spara som PDF</button>
+        </div>
+    </div>
+</div>
+
+<div id="printArea"></div>
+
+<header class="hero">
+    <h1>Kolonialism &amp; Slavhandel</h1>
+    <span class="era">1400-tal &#8212; 1850</span>
+</header>
+
+<div class="main">
+    <div class="card">
+        <h2>Instruktioner</h2>
+        <ol>
+            <li>V&#228;lj din niv&#229; &#8212; <strong>E</strong>, <strong>C</strong> eller <strong>A</strong></li>
+            <li>L&#228;s fr&#229;gorna noggrant &#8212; klicka p&#229; r&#228;tt alternativ eller skriv i textrutorna</li>
+            <li>N&#228;r du svarat p&#229; alla fr&#229;gor dyker kodl&#229;set upp &#8212; fr&#229;ga l&#228;raren om koden</li>
+            <li>Ange koden f&#246;r att se facit &#8212; p&#229; C/A-niv&#229; bed&#246;mer du sj&#228;lv ditt svar</li>
+        </ol>
+    </div>
+
+    <div class="tabs" id="tabBar">
+        <button class="tab active-e" data-level="e">E-niv&#229;<small>Grundl&#228;ggande</small></button>
+        <button class="tab" data-level="c">C-niv&#229;<small>Utvecklade</small></button>
+        <button class="tab" data-level="a">A-niv&#229;<small>Avancerade</small></button>
+    </div>
+
+    <!-- E -->
+    <div class="panel active" id="panel-e">
+        <h2 class="panel-title e">E-niv&#229;: Grundl&#228;ggande kunskaper</h2>
+        <p class="panel-sub">Klicka p&#229; r&#228;tt alternativ</p>
+        <div class="progress-bar"><div class="progress-track"><div class="progress-fill e" id="prog-e"></div></div><div class="progress-label" id="prog-label-e">0 / 8</div></div>
+
+        <div class="q-block" data-level="e" data-correct="B" data-topic="Orsaker till sj&#246;resor" data-answer-text="F&#246;r att slippa Osmanska rikets tullavgifter och handla direkt med Asien">
+            <div class="q-num">Fr&#229;ga 1</div><p class="q-text">Varf&#246;r b&#246;rjade europ&#233;erna g&#246;ra l&#229;ngv&#228;ga sj&#246;resor p&#229; 1400-talet?</p>
+            <div class="options"><div class="opt" data-val="A">A) F&#246;r att uppt&#228;cka nya l&#228;nder</div><div class="opt" data-val="B">B) F&#246;r att slippa Osmanska rikets tullavgifter och handla direkt med Asien</div><div class="opt" data-val="C">C) F&#246;r att sprida kristendomen</div><div class="opt" data-val="D">D) F&#246;r att fly fr&#229;n krig i Europa</div></div>
+            <div class="answer-box"><h4>R&#228;tt svar</h4><p class="correct">B) F&#246;r att slippa Osmanska rikets tullavgifter och handla direkt med Asien</p><p>Osmanska riket kontrollerade handeln i &#246;stra Medelhavsomr&#229;det och tog ut tullavgifter.</p></div>
+        </div>
+
+        <div class="q-block" data-level="e" data-correct="C" data-topic="Kolonisering &#8212; definition" data-answer-text="Att m&#228;nniskor fr&#229;n ett rike bos&#228;tter sig och med milit&#228;rt st&#246;d tar makten i ett annat omr&#229;de">
+            <div class="q-num">Fr&#229;ga 2</div><p class="q-text">Vad betyder det att kolonisera?</p>
+            <div class="options"><div class="opt" data-val="A">A) Att uppt&#228;cka nya l&#228;nder</div><div class="opt" data-val="B">B) Att handla med andra l&#228;nder</div><div class="opt" data-val="C">C) Att m&#228;nniskor fr&#229;n ett rike bos&#228;tter sig och med milit&#228;rt st&#246;d tar makten i ett annat omr&#229;de</div><div class="opt" data-val="D">D) Att utforska ok&#228;nda hav</div></div>
+            <div class="answer-box"><h4>R&#228;tt svar</h4><p class="correct">C) Att m&#228;nniskor fr&#229;n ett rike bos&#228;tter sig och med milit&#228;rt st&#246;d tar makten i ett annat omr&#229;de</p></div>
+        </div>
+
+        <div class="q-block" data-level="e" data-correct="B" data-topic="Columbus och Amerika" data-answer-text="1492">
+            <div class="q-num">Fr&#229;ga 3</div><p class="q-text">Vilket &#229;r anl&#228;nde Columbus till Amerika?</p>
+            <div class="options"><div class="opt" data-val="A">A) 1400</div><div class="opt" data-val="B">B) 1492</div><div class="opt" data-val="C">C) 1500</div><div class="opt" data-val="D">D) 1521</div></div>
+            <div class="answer-box"><h4>R&#228;tt svar</h4><p class="correct">B) 1492</p></div>
+        </div>
+
+        <div class="q-block" data-level="e" data-correct="B" data-topic="Triangelhandeln" data-answer-text="Europa, Afrika och Amerika">
+            <div class="q-num">Fr&#229;ga 4</div><p class="q-text">Vilka tre kontinenter var del av triangelhandeln?</p>
+            <div class="options"><div class="opt" data-val="A">A) Europa, Asien och Afrika</div><div class="opt" data-val="B">B) Europa, Afrika och Amerika</div><div class="opt" data-val="C">C) Amerika, Asien och Afrika</div><div class="opt" data-val="D">D) Europa, Amerika och Australien</div></div>
+            <div class="answer-box"><h4>R&#228;tt svar</h4><p class="correct">B) Europa, Afrika och Amerika</p></div>
+        </div>
+
+        <div class="q-block" data-level="e" data-correct="B" data-topic="Plantager och varor" data-answer-text="Socker, kaffe, tobak, kakao och bomull">
+            <div class="q-num">Fr&#229;ga 5</div><p class="q-text">Vad odlades p&#229; plantagerna i Brasilien och V&#228;stindien?</p>
+            <div class="options"><div class="opt" data-val="A">A) Vete och potatis</div><div class="opt" data-val="B">B) Socker, kaffe, tobak, kakao och bomull</div><div class="opt" data-val="C">C) Ris och majs</div><div class="opt" data-val="D">D) Frukt och gr&#246;nsaker</div></div>
+            <div class="answer-box"><h4>R&#228;tt svar</h4><p class="correct">B) Socker, kaffe, tobak, kakao och bomull</p></div>
+        </div>
+
+        <div class="q-block" data-level="e" data-correct="C" data-topic="Slavhandelns omfattning" data-answer-text="10 miljoner">
+            <div class="q-num">Fr&#229;ga 6</div><p class="q-text">Hur m&#229;nga afrikaner tvingades &#246;ver Atlanten under &#229;ren 1500&#8211;1850?</p>
+            <div class="options"><div class="opt" data-val="A">A) 1 miljon</div><div class="opt" data-val="B">B) 5 miljoner</div><div class="opt" data-val="C">C) 10 miljoner</div><div class="opt" data-val="D">D) 20 miljoner</div></div>
+            <div class="answer-box"><h4>R&#228;tt svar</h4><p class="correct">C) 10 miljoner</p></div>
+        </div>
+
+        <div class="q-block" data-level="e" data-correct="B" data-topic="Spanska er&#246;vringar" data-answer-text="Inkariket och Aztekeriket">
+            <div class="q-num">Fr&#229;ga 7</div><p class="q-text">Vilka tv&#229; riken er&#246;vrades av spanjorerna i Latinamerika?</p>
+            <div class="options"><div class="opt" data-val="A">A) Mayariket och Aztekeriket</div><div class="opt" data-val="B">B) Inkariket och Aztekeriket</div><div class="opt" data-val="C">C) Inkariket och Mayariket</div><div class="opt" data-val="D">D) Olmekariket och Aztekeriket</div></div>
+            <div class="answer-box"><h4>R&#228;tt svar</h4><p class="correct">B) Inkariket och Aztekeriket</p></div>
+        </div>
+
+        <div class="q-block" data-level="e" data-correct="D" data-topic="Slavhandelns storhetstid" data-answer-text="1700-talet">
+            <div class="q-num">Fr&#229;ga 8</div><p class="q-text">N&#228;r var slavhandeln som st&#246;rst?</p>
+            <div class="options"><div class="opt" data-val="A">A) 1400-talet</div><div class="opt" data-val="B">B) 1500-talet</div><div class="opt" data-val="C">C) 1600-talet</div><div class="opt" data-val="D">D) 1700-talet</div></div>
+            <div class="answer-box"><h4>R&#228;tt svar</h4><p class="correct">D) 1700-talet</p></div>
+        </div>
+
+        <div class="level-lock" id="lock-e"><h3>Bra jobbat &#8212; alla fr&#229;gor besvarade!</h3><p>Fr&#229;ga din l&#228;rare om koden f&#246;r att se facit</p><div class="lock-row"><input type="text" placeholder="Ange kod" maxlength="20" autocomplete="off" class="lock-input" data-level="e"><button class="lock-btn" data-level="e">L&#229;s upp</button></div><div class="lock-error" id="err-e">Fel kod!</div></div>
+        <div class="level-summary" id="summary-e"></div>
+    </div>
+
+    <!-- C -->
+    <div class="panel" id="panel-c">
+        <h2 class="panel-title c">C-niv&#229;: Utvecklade kunskaper</h2>
+        <p class="panel-sub">Skriv utf&#246;rliga svar med fullst&#228;ndiga meningar</p>
+        <div class="progress-bar"><div class="progress-track"><div class="progress-fill c" id="prog-c"></div></div><div class="progress-label" id="prog-label-c">0 / 8</div></div>
+
+        <div class="q-block" data-level="c" data-topic="Handel och Osmanska riket" data-checks="N&#228;mner Osmanska riket|N&#228;mner tullavgifter/dyr handel|N&#228;mner konsekvensen: nya sj&#246;v&#228;gar|N&#228;mner handel med Sydostasien"><div class="q-num">Fr&#229;ga 1</div><p class="q-text">F&#246;rklara varf&#246;r handeln mellan Europa och Asien blev dyrare under 1400-talet. Vilka konsekvenser fick detta?</p><textarea placeholder="Skriv ditt svar h&#228;r..."></textarea><div class="answer-box"><h4>R&#228;tt svar</h4><p>Osmanska riket v&#228;xte sig stort i &#246;stra Medelhavsomr&#229;det och kontrollerade handeln. De kunde d&#228;rf&#246;r ta ut tullavgifter. Detta gjorde handeln dyr f&#246;r europ&#233;erna. Konsekvensen blev att europ&#233;erna b&#246;rjade s&#246;ka nya handelsv&#228;gar genom l&#229;ngv&#228;ga sj&#246;resor runt Afrika.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="c" data-topic="Triangelhandeln" data-checks="N&#228;mner alla tre kontinenter|N&#228;mner varor fr&#229;n Europa till Afrika|N&#228;mner att slavar skeppades till Amerika|N&#228;mner varor fr&#229;n Amerika till Europa"><div class="q-num">Fr&#229;ga 2</div><p class="q-text">Beskriv triangelhandeln. Vilka varor transporterades i de olika riktningarna?</p><textarea placeholder="Skriv ditt svar h&#228;r..."></textarea><div class="answer-box"><h4>R&#228;tt svar</h4><p>Triangelhandeln gick mellan Europa, Afrika och Amerika. Fr&#229;n Europa skeppades j&#228;rn, vapen, tyger och br&#228;nnvin till Afrika. Slavarna s&#229;ldes i Amerika. Fr&#229;n Amerika skeppades socker, tobak och bomull till Europa.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="c" data-topic="Urfolkens &#246;de" data-checks="N&#228;mner sjukdomar fr&#229;n europ&#233;erna|N&#228;mner v&#229;ld och/eller slaveri|N&#228;mner befolkningsminskningen"><div class="q-num">Fr&#229;ga 3</div><p class="q-text">Varf&#246;r dog s&#229; m&#229;nga av Amerikas urfolk efter europ&#233;ernas ankomst?</p><textarea placeholder="Skriv ditt svar h&#228;r..."></textarea><div class="answer-box"><h4>R&#228;tt svar</h4><p>De flesta dog i sjukdomar som europ&#233;erna f&#246;rde med sig. M&#229;nga dog ocks&#229; p&#229; grund av v&#229;ldet och slaveriet. &#197;r 1500 bodde 25&#8211;30 miljoner i Mellanamerika, men 50 &#229;r senare hade befolkningen minskat till 2&#8211;3 miljoner.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="c" data-topic="Tekniska framsteg" data-checks="N&#228;mner kompassen|N&#228;mner astrolaben|N&#228;mner b&#228;ttre kartor|N&#228;mner nya skepp"><div class="q-num">Fr&#229;ga 4</div><p class="q-text">Vilka tekniska framsteg gjorde de l&#229;ngv&#228;ga sj&#246;resorna m&#246;jliga?</p><textarea placeholder="Skriv ditt svar h&#228;r..."></textarea><div class="answer-box"><h4>R&#228;tt svar</h4><p>Den magnetiska kompassen, b&#228;ttre kartor och astrolaben underl&#228;ttade resorna. Nya sj&#246;s&#228;kra skepp med kanoner och st&#246;rre lastutrymmen bidrog till den &#246;kade handeln.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="c" data-topic="Afrikas ekonomi" data-checks="N&#228;mner europeisk import|N&#228;mner att handelsv&#228;gar ers&#228;ttes|N&#228;mner befolkningsminskning"><div class="q-num">Fr&#229;ga 5</div><p class="q-text">Hur p&#229;verkades Afrika ekonomiskt av slavhandeln?</p><textarea placeholder="Skriv ditt svar h&#228;r..."></textarea><div class="answer-box"><h4>R&#228;tt svar</h4><p>Varor importerades fr&#229;n Europa vilket konkurrerade ut afrikansk tillverkning. Afrikanska handelsv&#228;gar ers&#228;ttes. De unga och starka togs som slavar.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="c" data-topic="Handelskompanierna" data-checks="N&#228;mner ensamr&#228;tt till handel|N&#228;mner kungahusens roll|N&#228;mner finansiering av sj&#246;resor|N&#228;mner kontroll &#246;ver handeln"><div class="q-num">Fr&#229;ga 6</div><p class="q-text">Varf&#246;r hade handelskompanierna stor betydelse f&#246;r kolonierna?</p><textarea placeholder="Skriv ditt svar h&#228;r..."></textarea><div class="answer-box"><h4>R&#228;tt svar</h4><p>Handelskompanierna hade ensamr&#228;tt till handeln. Kungahusen var ofta st&#246;rsta del&#228;gare. De bekostade sj&#246;resorna och er&#246;vringarna.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="c" data-topic="Olika former av slaveri" data-checks="N&#228;mner religionsbyte|N&#228;mner liten ekonomisk betydelse|N&#228;mner transatlantiska slavhandelns storlek|N&#228;mner att det var n&#228;stan om&#246;jligt att bli fri"><div class="q-num">Fr&#229;ga 7</div><p class="q-text">Vilka skillnader fanns mellan den osmanska/arabiska slavhandeln och den transatlantiska?</p><textarea placeholder="Skriv ditt svar h&#228;r..."></textarea><div class="answer-box"><h4>R&#228;tt svar</h4><p>I osmansk slavhandel kunde slavar bli fria genom religionsbyte. Transatlantiska slavhandeln var mycket st&#246;rre (10 miljoner) och det var n&#228;stan om&#246;jligt att bli fri.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="c" data-topic="Slavarnas motst&#229;nd" data-checks="N&#228;mner passivt motst&#229;nd|N&#228;mner flykt|N&#228;mner motst&#229;ndsgrupper"><div class="q-num">Fr&#229;ga 8</div><p class="q-text">Hur gjorde slavarna motst&#229;nd mot slaveriet i Amerika?</p><textarea placeholder="Skriv ditt svar h&#228;r..."></textarea><div class="answer-box"><h4>R&#228;tt svar</h4><p>Slavarna gjorde motst&#229;nd genom att arbeta l&#229;ngsamt eller v&#228;gra lyda. Vissa flydde medan andra bildade motst&#229;ndsgrupper.</p></div><div class="self-assess"></div></div>
+
+        <div class="level-lock" id="lock-c"><h3>Bra jobbat &#8212; alla fr&#229;gor besvarade!</h3><p>Fr&#229;ga din l&#228;rare om koden</p><div class="lock-row"><input type="text" placeholder="Ange kod" maxlength="20" autocomplete="off" class="lock-input" data-level="c"><button class="lock-btn" data-level="c">L&#229;s upp</button></div><div class="lock-error" id="err-c">Fel kod!</div></div>
+        <div class="level-summary" id="summary-c"></div>
+    </div>
+
+    <!-- A -->
+    <div class="panel" id="panel-a">
+        <h2 class="panel-title a">A-niv&#229;: Avancerade kunskaper</h2>
+        <p class="panel-sub">Skriv utvecklade analyser med argument och exempel</p>
+        <div class="progress-bar"><div class="progress-track"><div class="progress-fill a" id="prog-a"></div></div><div class="progress-label" id="prog-label-a">0 / 3</div></div>
+
+        <div class="q-block" data-level="a" data-topic="Kolonialism, slavhandel och ekonomi" data-checks="Visar samband mellan kolonialism och handelsv&#228;gar|N&#228;mner slavhandeln som k&#228;lla till arbetskraft|N&#228;mner varor och vinster till Europa|N&#228;mner handelns tillv&#228;xt|N&#228;mner silver och global handel|N&#228;mner exploatering av kolonierna"><div class="q-num">Fr&#229;ga 1</div><p class="q-text">Analysera sambandet mellan kolonialismen, slavhandeln och den ekonomiska utvecklingen i Europa under 1500&#8211;1700-talen.</p><textarea class="tall" placeholder="Skriv din analys h&#228;r..."></textarea><div class="answer-box"><h4>Exempel p&#229; fullst&#228;ndigt svar</h4><p>Kolonialismen gav kontroll &#246;ver handelsv&#228;gar och naturresurser. Slavhandeln gav arbetskraft till plantager. V&#228;rldshandeln f&#246;rdubblades 1510&#8211;1550 och tredubblades 1550&#8211;1660. Silver fr&#229;n Sydamerika startade det globala handelsutbytet.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="a" data-topic="Rasism och slaveri" data-checks="F&#246;rklarar att rasism r&#228;ttf&#228;rdigade slaveriet|N&#228;mner avhumanisering|J&#228;mf&#246;r med &#228;ldre slaveri|N&#228;mner hudf&#228;rg som grund|N&#228;mner l&#229;ngvariga konsekvenser"><div class="q-num">Fr&#229;ga 2</div><p class="q-text">Varf&#246;r uppstod rasistiska tankar under 1500-talet och vilken funktion hade de?</p><textarea class="tall" placeholder="Skriv din analys h&#228;r..."></textarea><div class="answer-box"><h4>Exempel p&#229; fullst&#228;ndigt svar</h4><p>Rasistiska tankar spreds f&#246;r att r&#228;ttf&#228;rdiga slaveriet. Den transatlantiska slavhandeln byggde p&#229; id&#233;n att vita europ&#233;er var &#246;verl&#228;gsna baserat p&#229; hudf&#228;rg, vilket skilde sig fr&#229;n &#228;ldre slaveri d&#228;r religionsbyte kunde ge frihet.</p></div><div class="self-assess"></div></div>
+
+        <div class="q-block" data-level="a" data-topic="Konsekvenser f&#246;r Afrika" data-checks="Demografi: befolkningsminskning|Ekonomi: import, handelsv&#228;gar ers&#228;ttes|Politik: riken st&#228;rktes (Dahomey, Ashanti)|Politik: konflikter (Kongoriket)|Visar samband mellan omr&#229;dena"><div class="q-num">Fr&#229;ga 3</div><p class="q-text">Analysera de l&#229;ngsiktiga konsekvenserna av slavhandeln f&#246;r Afrika. Diskutera demografi, ekonomi och politik.</p><textarea class="tall" placeholder="Skriv din analys h&#228;r..."></textarea><div class="answer-box"><h4>Exempel p&#229; fullst&#228;ndigt svar</h4><p><strong>Demografi:</strong> De unga och starka togs som slavar. <strong>Ekonomi:</strong> Europeisk import konkurrerade ut lokal tillverkning. <strong>Politik:</strong> Dahomey och Ashanti blev m&#228;ktiga genom slavhandel. Kongoriket splittrades.</p></div><div class="self-assess"></div></div>
+
+        <div class="level-lock" id="lock-a"><h3>Bra jobbat &#8212; alla fr&#229;gor besvarade!</h3><p>Fr&#229;ga din l&#228;rare om koden</p><div class="lock-row"><input type="text" placeholder="Ange kod" maxlength="20" autocomplete="off" class="lock-input" data-level="a"><button class="lock-btn" data-level="a">L&#229;s upp</button></div><div class="lock-error" id="err-a">Fel kod!</div></div>
+        <div class="level-summary" id="summary-a"></div>
+    </div>
+</div>
+
+<footer class="footer">Quiz: Kolonialism och Slavhandel</footer>
+
+<script>
+(function(){
+
+var CODES = {e:"KOLONI2024",c:"TRIANGEL2024",a:"ANALYS2024"};
+var unlocked = {e:false,c:false,a:false};
+var printLv = null;
+var colorMap = {e:"active-e",c:"active-c",a:"active-a"};
+
+/* --- TABS via event delegation --- */
+document.getElementById("tabBar").addEventListener("click", function(e) {
+    var btn = e.target;
+    while (btn && !btn.getAttribute("data-level")) { btn = btn.parentElement; }
+    if (!btn) return;
+    var lv = btn.getAttribute("data-level");
+    var allTabs = document.querySelectorAll(".tab");
+    var allPanels = document.querySelectorAll(".panel");
+    for (var i = 0; i < allTabs.length; i++) allTabs[i].className = "tab";
+    btn.className = "tab " + colorMap[lv];
+    for (var i = 0; i < allPanels.length; i++) allPanels[i].className = "panel";
+    document.getElementById("panel-" + lv).className = "panel active";
+}, false);
+
+/* --- HELPERS --- */
+function qBlocks(lv) { return document.querySelectorAll(".q-block[data-level='" + lv + "']"); }
+
+function answered(lv) {
+    var b = qBlocks(lv), n = 0;
+    for (var i = 0; i < b.length; i++) {
+        if (lv === "e") { if (b[i].querySelector(".opt.selected")) n++; }
+        else { var t = b[i].querySelector("textarea"); if (t && t.value.trim()) n++; }
+    }
+    return n;
+}
+
+function prog(lv) {
+    var b = qBlocks(lv), tot = b.length, ans = answered(lv);
+    var pct = tot ? Math.round(ans/tot*100) : 0;
+    var f = document.getElementById("prog-" + lv);
+    var l = document.getElementById("prog-label-" + lv);
+    if (f) f.style.width = pct + "%";
+    if (l) l.textContent = ans + " / " + tot;
+    var lock = document.getElementById("lock-" + lv);
+    if (ans === tot && tot > 0 && !unlocked[lv]) lock.className = "level-lock visible";
+    else if (ans < tot) lock.className = "level-lock";
+}
+
+/* --- CLICK OPTIONS (E) --- */
+document.addEventListener("click", function(e) {
+    var opt = e.target;
+    if (!opt.className || opt.className.indexOf("opt") === -1) return;
+    var block = opt.parentElement ? opt.parentElement.parentElement : null;
+    if (!block || block.getAttribute("data-level") !== "e") return;
+    if (unlocked.e) return;
+    var opts = block.querySelectorAll(".opt");
+    for (var i = 0; i < opts.length; i++) opts[i].className = "opt";
+    opt.className = "opt selected";
+    prog("e");
+}, false);
+
+/* --- TEXTAREA INPUT --- */
+document.addEventListener("input", function(e) {
+    if (e.target.tagName !== "TEXTAREA") return;
+    var block = e.target.parentElement;
+    while (block && !block.getAttribute("data-level")) block = block.parentElement;
+    if (!block) return;
+    var lv = block.getAttribute("data-level");
+    if (!unlocked[lv]) prog(lv);
+}, false);
+
+/* --- CODE UNLOCK --- */
+document.addEventListener("click", function(e) {
+    if (!e.target.className || e.target.className.indexOf("lock-btn") === -1) return;
+    var lv = e.target.getAttribute("data-level");
+    doUnlock(lv);
+}, false);
+
+document.addEventListener("keydown", function(e) {
+    if (e.key !== "Enter") return;
+    if (!e.target.className || e.target.className.indexOf("lock-input") === -1) return;
+    doUnlock(e.target.getAttribute("data-level"));
+}, false);
+
+function doUnlock(lv) {
+    var lock = document.getElementById("lock-" + lv);
+    var inp = lock.querySelector(".lock-input");
+    var err = document.getElementById("err-" + lv);
+    if (inp.value.trim().toUpperCase() === CODES[lv]) {
+        unlocked[lv] = true;
+        lock.className = "level-lock visible unlocked-state";
+        lock.innerHTML = "<div class='lock-success'>Uppl&#229;st! Facit visas nedan.</div>";
+        reveal(lv);
+    } else {
+        err.className = "lock-error show";
+        setTimeout(function(){ err.className = "lock-error"; }, 2500);
+    }
+}
+
+/* --- REVEAL --- */
+function reveal(lv) {
+    var panel = document.getElementById("panel-" + lv);
+    var boxes = panel.querySelectorAll(".answer-box");
+    for (var i = 0; i < boxes.length; i++) boxes[i].className = "answer-box show";
+    var opts = panel.querySelectorAll(".opt");
+    for (var i = 0; i < opts.length; i++) { var c = opts[i].className; if (c.indexOf("disabled") === -1) opts[i].className = c + " disabled"; }
+    var tas = panel.querySelectorAll("textarea");
+    for (var i = 0; i < tas.length; i++) { tas[i].readOnly = true; tas[i].style.opacity = "0.7"; }
+
+    if (lv === "e") {
+        var bl = qBlocks("e");
+        for (var i = 0; i < bl.length; i++) {
+            var cv = bl[i].getAttribute("data-correct");
+            var ao = bl[i].querySelectorAll(".opt");
+            for (var j = 0; j < ao.length; j++) {
+                if (ao[j].getAttribute("data-val") === cv) ao[j].className += " correct-reveal";
+            }
+            var sel = bl[i].querySelector(".opt.selected");
+            if (sel) {
+                if (sel.getAttribute("data-val") === cv) bl[i].className += " answered-correct";
+                else { sel.className += " wrong-reveal"; bl[i].className += " answered-wrong"; }
+            }
+        }
+        summaryE();
+    } else {
+        var bl = qBlocks(lv);
+        for (var b = 0; b < bl.length; b++) {
+            var cs = bl[b].getAttribute("data-checks");
+            if (!cs) continue;
+            var checks = cs.split("|");
+            var sa = bl[b].querySelector(".self-assess");
+            var h = "<h4>R&#228;tta dig sj&#228;lv &#8212; bocka av det du fick med:</h4>";
+            for (var c = 0; c < checks.length; c++) {
+                var id = "sa" + lv + b + "c" + c;
+                h += "<div class='sa-check'><input type='checkbox' id='" + id + "'><label for='" + id + "'>" + checks[c] + "</label></div>";
+            }
+            h += "<div class='sa-traffic neutral' data-total='" + checks.length + "'>Bocka av punkterna ovan</div>";
+            sa.innerHTML = h;
+            sa.className = "self-assess show";
+        }
+        // checkbox listener via delegation
+        panel.addEventListener("change", function(ev) {
+            if (ev.target.type !== "checkbox") return;
+            var sd = ev.target;
+            while (sd && sd.className.indexOf("self-assess") === -1) sd = sd.parentElement;
+            if (sd) trafficLight(sd);
+        }, false);
+        // summary button
+        if (!panel.querySelector(".build-summary-btn")) {
+            var btn = document.createElement("button");
+            btn.className = "build-summary-btn";
+            btn.textContent = "Visa summering";
+            btn.addEventListener("click", function(){ summaryOpen(lv); }, false);
+            var lockEl = panel.querySelector(".level-lock");
+            lockEl.parentNode.insertBefore(btn, lockEl.nextSibling);
+        }
+    }
+}
+
+function trafficLight(sa) {
+    var tot = parseInt(sa.querySelector(".sa-traffic").getAttribute("data-total"));
+    var chk = sa.querySelectorAll("input[type=checkbox]:checked").length;
+    var el = sa.querySelector(".sa-traffic");
+    if (chk === 0) { el.className = "sa-traffic neutral"; el.textContent = "Bocka av punkterna ovan"; }
+    else if (chk === tot) { el.className = "sa-traffic green"; el.textContent = "Fick med allt!"; }
+    else if (chk >= tot/2) { el.className = "sa-traffic yellow"; el.textContent = "Fick med en del (" + chk + " av " + tot + ")"; }
+    else { el.className = "sa-traffic red"; el.textContent = "Missade mycket (" + chk + " av " + tot + ")"; }
+}
+
+/* --- SUMMARY E --- */
+function summaryE() {
+    var bl = qBlocks("e"), cor = 0, tot = bl.length, rows = "";
+    for (var i = 0; i < bl.length; i++) {
+        var cv = bl[i].getAttribute("data-correct"), at = bl[i].getAttribute("data-answer-text"), tp = bl[i].getAttribute("data-topic");
+        var sel = bl[i].querySelector(".opt.selected"), uv = sel ? sel.getAttribute("data-val") : null, ok = uv === cv;
+        if (ok) cor++;
+        var ic = ok ? "right" : (uv ? "wrong" : "skip"), it = ok ? "R" : (uv ? "X" : "-");
+        var d;
+        if (ok) d = "<span class='sr-correct-text'>R&#228;tt! " + at + "</span>";
+        else if (uv) d = "<span class='sr-your'>Ditt svar: " + uv + "</span> &#8212; <span class='sr-correct-text'>R&#228;tt: " + at + "</span>";
+        else d = "<span class='sr-your'>Ej besvarad</span> &#8212; <span class='sr-correct-text'>R&#228;tt: " + at + "</span>";
+        rows += "<div class='summary-row'><div class='sr-icon " + ic + "'>" + it + "</div><div class='sr-body'><div class='sr-q'>Fr&#229;ga " + (i+1) + ": " + tp + "</div><div class='sr-detail'>" + d + "</div></div></div>";
+    }
+    var pct = Math.round(cor/tot*100);
+    var h = "<div class='summary-card'><h3>Ditt resultat &#8212; E-niv&#229;</h3><div class='score-bar-outer'><div class='score-bar-inner' id='scorebar-e' style='width:0%'>0%</div></div><div class='summary-grid'>" + rows + "</div></div>";
+    h += "<div class='rec-card'><h3>Rekommendationer</h3>";
+    if (cor === tot) h += "<div class='rec-perfect'>Fantastiskt! Alla r&#228;tt! Testa C-niv&#229;n!</div>";
+    else {
+        for (var i = 0; i < bl.length; i++) {
+            var cv = bl[i].getAttribute("data-correct"), sel = bl[i].querySelector(".opt.selected"), uv = sel ? sel.getAttribute("data-val") : null;
+            if (uv !== cv) h += "<div class='rec-item'><div class='rec-topic'>" + bl[i].getAttribute("data-topic") + "</div><div class='rec-tip'>Repetera detta omr&#229;de i din l&#228;robok.</div></div>";
+        }
+    }
+    h += "</div><div style='text-align:center'><button class='save-btn' id='save-e'>Spara resultat som PDF</button></div>";
+    var c = document.getElementById("summary-e"); c.innerHTML = h; c.className = "level-summary show";
+    document.getElementById("save-e").addEventListener("click", function(){ startSave("e"); }, false);
+    setTimeout(function(){ var b = document.getElementById("scorebar-e"); if(b){b.style.width=pct+"%";b.textContent=cor+"/"+tot+" r&#228;tt ("+pct+"%)";} }, 150);
+    c.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* --- SUMMARY C/A --- */
+function summaryOpen(lv) {
+    var bl = qBlocks(lv), ln = lv==="c"?"C-niv&#229;":"A-niv&#229;", g=0,y=0,r=0,n=0, res=[];
+    for (var i = 0; i < bl.length; i++) {
+        var sa = bl[i].querySelector(".self-assess"), tc = 0, cc = 0, col = "none";
+        if (sa) { var tr = sa.querySelector(".sa-traffic"); if(tr) tc = parseInt(tr.getAttribute("data-total"))||0; cc = sa.querySelectorAll("input[type=checkbox]:checked").length; }
+        if (tc>0&&cc>0) { if(cc===tc){col="green";g++;} else if(cc>=tc/2){col="yellow";y++;} else{col="red";r++;} } else n++;
+        res.push({q:i+1,t:bl[i].getAttribute("data-topic"),col:col,cc:cc,tc:tc});
+    }
+    var h = "<div class='summary-card'><h3>Ditt resultat &#8212; " + ln + "</h3>";
+    h += "<div style='display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px'>";
+    h += "<div style='flex:1;min-width:80px;text-align:center;padding:14px;background:var(--success-bg);border-radius:6px'><div style='font-size:1.5rem;font-weight:800;color:var(--success)'>" + g + "</div><div style='font-size:.82rem;color:var(--success)'>Fick med allt</div></div>";
+    h += "<div style='flex:1;min-width:80px;text-align:center;padding:14px;background:var(--yellow-bg);border-radius:6px'><div style='font-size:1.5rem;font-weight:800;color:var(--yellow)'>" + y + "</div><div style='font-size:.82rem;color:var(--yellow)'>En del</div></div>";
+    h += "<div style='flex:1;min-width:80px;text-align:center;padding:14px;background:var(--wrong-bg);border-radius:6px'><div style='font-size:1.5rem;font-weight:800;color:var(--danger)'>" + r + "</div><div style='font-size:.82rem;color:var(--danger)'>Missade mycket</div></div>";
+    if(n>0) h += "<div style='flex:1;min-width:80px;text-align:center;padding:14px;background:#f0ede6;border-radius:6px'><div style='font-size:1.5rem;font-weight:800;color:#999'>" + n + "</div><div style='font-size:.82rem;color:#999'>Ej bed&#246;mda</div></div>";
+    h += "</div><div class='summary-grid'>";
+    for (var i = 0; i < res.length; i++) {
+        var x = res[i], ic = "sa-"+x.col, it = x.col==="green"?"R":x.col==="yellow"?"~":x.col==="red"?"X":"-", d;
+        if(x.col==="green") d="<span class='sr-correct-text'>Fick med allt ("+x.cc+"/"+x.tc+")</span>";
+        else if(x.col==="yellow") d="<span style='color:var(--yellow);font-weight:600'>Fick med en del ("+x.cc+"/"+x.tc+")</span>";
+        else if(x.col==="red") d="<span class='sr-your'>Missade mycket ("+x.cc+"/"+x.tc+")</span>";
+        else d="<span style='color:#999'>Ej bed&#246;md</span>";
+        h += "<div class='summary-row'><div class='sr-icon "+ic+"'>"+it+"</div><div class='sr-body'><div class='sr-q'>Fr&#229;ga "+x.q+": "+x.t+"</div><div class='sr-detail'>"+d+"</div></div></div>";
+    }
+    h += "</div></div><div class='rec-card'><h3>Rekommendationer</h3>";
+    var nw = res.filter(function(x){return x.col!=="green";});
+    if(!nw.length) h += "<div class='rec-perfect'>"+(lv==="c"?"Utm&#228;rkt! Prova A-niv&#229;n!":"Fantastiskt! Du beh&#228;rskar den avancerade niv&#229;n!")+"</div>";
+    else { for(var i=0;i<nw.length;i++){ var x=nw[i]; h+="<div class='rec-item'><div class='rec-topic'>Fr&#229;ga "+x.q+": "+x.t+"</div><div class='rec-tip'>"+(x.col==="none"?"Bocka av nyckelbegreppen vid fr&#229;gan.":"Du saknade "+(x.tc-x.cc)+" av "+x.tc+" nyckelbegrepp.")+"</div></div>"; } }
+    h += "</div><div style='text-align:center'><button class='save-btn' id='save-"+lv+"'>Spara resultat som PDF</button></div>";
+    var c = document.getElementById("summary-"+lv); c.innerHTML=h; c.className="level-summary show";
+    document.getElementById("save-"+lv).addEventListener("click",function(){startSave(lv);},false);
+    c.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* --- SAVE/PRINT --- */
+function startSave(lv) { printLv=lv; document.getElementById("nameModal").className="modal-overlay show"; document.getElementById("studentName").focus(); }
+document.getElementById("modalCancel").addEventListener("click",function(){ document.getElementById("nameModal").className="modal-overlay"; printLv=null; },false);
+document.getElementById("modalSave").addEventListener("click",doPrint,false);
+
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function doPrint(){
+    var lv=printLv; if(!lv) return;
+    var nm=document.getElementById("studentName").value.trim()||"Ej angivet";
+    var kl=document.getElementById("studentClass").value.trim();
+    var d=new Date(), ds=d.toLocaleDateString("sv-SE")+" "+d.toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
+    var ln={e:"E",c:"C",a:"A"};
+    var h="<div class='print-header'><h1>Quiz: Kolonialism och Slavhandel</h1><div class='print-meta'><strong>Namn:</strong> "+esc(nm);
+    if(kl) h+=" | <strong>Klass:</strong> "+esc(kl);
+    h+=" | <strong>Niva:</strong> "+ln[lv]+" | <strong>Datum:</strong> "+ds+"</div></div>";
+    var bl=qBlocks(lv);
+    if(lv==="e"){
+        var cor=0;
+        for(var i=0;i<bl.length;i++){
+            var cv=bl[i].getAttribute("data-correct"),at=bl[i].getAttribute("data-answer-text");
+            var sel=bl[i].querySelector(".opt.selected"),uv=sel?sel.getAttribute("data-val"):null,ok=uv===cv;
+            if(ok) cor++;
+            h+="<div class='print-q'><div class='print-q-num'>Fraga "+(i+1)+": "+bl[i].getAttribute("data-topic")+"</div>";
+            h+="<div class='print-q-text'>"+esc(bl[i].querySelector(".q-text").textContent)+"</div>";
+            h+="<div class='print-answer'><strong>Ditt svar:</strong> "+(uv||"Ej besvarad")+"</div>";
+            h+="<div class='print-answer'><strong>Ratt svar:</strong> "+at+"</div>";
+            h+="<div class='print-result'>"+(ok?"RATT":(uv?"FEL":"EJ BESVARAD"))+"</div></div>";
+        }
+        h+="<div class='print-total'>Resultat: "+cor+" av "+bl.length+" ratt ("+Math.round(cor/bl.length*100)+"%)</div>";
+    } else {
+        for(var i=0;i<bl.length;i++){
+            var ta=bl[i].querySelector("textarea"),txt=ta?ta.value.trim():"";
+            h+="<div class='print-q'><div class='print-q-num'>Fraga "+(i+1)+": "+bl[i].getAttribute("data-topic")+"</div>";
+            h+="<div class='print-q-text'>"+esc(bl[i].querySelector(".q-text").textContent)+"</div>";
+            if(txt) h+="<div class='print-student-text'>"+esc(txt)+"</div>"; else h+="<div class='print-answer'><em>Ej besvarad</em></div>";
+            var sa=bl[i].querySelector(".self-assess"),cs=bl[i].getAttribute("data-checks");
+            if(cs&&sa){var ch=cs.split("|"),cb=sa.querySelectorAll("input[type=checkbox]");h+="<div class='print-checks'>";for(var c=0;c<ch.length;c++){h+=(cb[c]&&cb[c].checked?"JA ":"NEJ ")+ch[c];if(c<ch.length-1)h+=" | ";}h+="</div>";}
+            h+="</div>";
+        }
+    }
+    document.getElementById("printArea").innerHTML=h;
+    document.getElementById("nameModal").className="modal-overlay"; printLv=null;
+    setTimeout(function(){window.print();},200);
+}
+
+/* INIT */
+prog("e"); prog("c"); prog("a");
+
+})();
+</script>
+</body>
+</html>
