@@ -111,17 +111,17 @@
         .modal-btn.primary{background:var(--sea);color:#fff}
         .modal-btn.secondary{background:#eee;color:#666}
         #printArea{display:none}
-        .sticky-progress{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(0,0,0,.1);padding:10px 20px;display:flex;align-items:center;gap:12px;transform:translateY(-100%);transition:transform .3s ease}
+        .sticky-progress{position:fixed;bottom:0;left:0;right:0;z-index:500;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 -2px 12px rgba(0,0,0,.08);padding:10px 20px;display:flex;align-items:center;gap:12px;transform:translateY(100%);transition:transform .3s ease}
         .sticky-progress.visible{transform:translateY(0)}
         .sticky-progress .sp-label{font-size:.85rem;font-weight:700;color:var(--ink);white-space:nowrap}
         .sticky-progress .sp-track{flex:1;height:8px;background:#e8e2d8;border-radius:20px;overflow:hidden}
         .sticky-progress .sp-fill{height:100%;border-radius:20px;transition:width .4s ease;width:0}
         .sticky-progress .sp-fill.e{background:var(--tab-e)}.sticky-progress .sp-fill.c{background:var(--tab-c)}.sticky-progress .sp-fill.a{background:var(--tab-a)}
         .sticky-progress .sp-count{font-size:.85rem;font-weight:700;color:#999;white-space:nowrap}
-        .footer{text-align:center;padding:32px 20px;color:#aaa;font-size:.85rem}
+        .footer{text-align:center;padding:32px 20px 60px;color:#aaa;font-size:.85rem}
         @media print{
             body{background:#fff !important;padding:0 !important;font-size:11pt}
-            .hero,.card,.tabs,.panel,.footer,.modal-overlay,.level-lock,.build-summary-btn,.save-btn,.progress-bar{display:none !important}
+            .hero,.card,.tabs,.panel,.footer,.modal-overlay,.level-lock,.build-summary-btn,.save-btn,.progress-bar,.sticky-progress{display:none !important}
             .main{display:none !important}
             #printArea{display:block !important;padding:20px}
             .print-header{text-align:center;border-bottom:2px solid #000;padding-bottom:16px;margin-bottom:20px}
@@ -328,10 +328,7 @@ function updateSticky(lv) {
 }
 
 window.addEventListener("scroll", function() {
-    var tabBar = document.getElementById("tabBar");
-    if (!tabBar) return;
-    var rect = tabBar.getBoundingClientRect();
-    if (rect.bottom < 0) stickyEl.className = "sticky-progress visible";
+    if (window.scrollY > 200) stickyEl.className = "sticky-progress visible";
     else stickyEl.className = "sticky-progress";
 }, false);
 
@@ -487,12 +484,13 @@ function summaryE() {
     for (var i = 0; i < bl.length; i++) {
         var cv = bl[i].getAttribute("data-correct"), at = bl[i].getAttribute("data-answer-text"), tp = bl[i].getAttribute("data-topic");
         var sel = bl[i].querySelector(".opt.selected"), uv = sel ? sel.getAttribute("data-val") : null, ok = uv === cv;
+        var userText = sel ? sel.textContent.replace(/^[A-D]\)\s*/, "") : null;
         if (ok) cor++;
         var ic = ok ? "right" : (uv ? "wrong" : "skip"), it = ok ? "R" : (uv ? "X" : "-");
         var d;
-        if (ok) d = "<span class='sr-correct-text'>R&#228;tt! " + at + "</span>";
-        else if (uv) d = "<span class='sr-your'>Ditt svar: " + uv + "</span> &#8212; <span class='sr-correct-text'>R&#228;tt: " + at + "</span>";
-        else d = "<span class='sr-your'>Ej besvarad</span> &#8212; <span class='sr-correct-text'>R&#228;tt: " + at + "</span>";
+        if (ok) d = "<span class='sr-correct-text'>Du svarade r&#228;tt! " + at + "</span>";
+        else if (uv) d = "<span class='sr-your'>Du svarade: " + userText + "</span><br><span class='sr-correct-text'>R&#228;tt svar: " + at + "</span>";
+        else d = "<span class='sr-your'>Du svarade inte</span><br><span class='sr-correct-text'>R&#228;tt svar: " + at + "</span>";
         rows += "<div class='summary-row'><div class='sr-icon " + ic + "'>" + it + "</div><div class='sr-body'><div class='sr-q'>Fr&#229;ga " + (i+1) + ": " + tp + "</div><div class='sr-detail'>" + d + "</div></div></div>";
     }
     var pct = Math.round(cor/tot*100);
@@ -568,10 +566,11 @@ function doPrint(){
         for(var i=0;i<bl.length;i++){
             var cv=bl[i].getAttribute("data-correct"),at=bl[i].getAttribute("data-answer-text");
             var sel=bl[i].querySelector(".opt.selected"),uv=sel?sel.getAttribute("data-val"):null,ok=uv===cv;
+            var userText=sel?sel.textContent.replace(/^[A-D]\)\s*/,""):"";
             if(ok) cor++;
             h+="<div class='print-q'><div class='print-q-num'>Fraga "+(i+1)+": "+bl[i].getAttribute("data-topic")+"</div>";
             h+="<div class='print-q-text'>"+esc(bl[i].querySelector(".q-text").textContent)+"</div>";
-            h+="<div class='print-answer'><strong>Ditt svar:</strong> "+(uv||"Ej besvarad")+"</div>";
+            h+="<div class='print-answer'><strong>Du svarade:</strong> "+(uv?esc(userText):"Svarade inte")+"</div>";
             h+="<div class='print-answer'><strong>Ratt svar:</strong> "+at+"</div>";
             h+="<div class='print-result'>"+(ok?"RATT":(uv?"FEL":"EJ BESVARAD"))+"</div></div>";
         }
