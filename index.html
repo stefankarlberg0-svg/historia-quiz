@@ -467,7 +467,7 @@ function summaryE() {
     h += "</div><div style='text-align:center'><button class='save-btn' id='save-e'>Spara resultat som PDF</button></div>";
     var c = document.getElementById("summary-e"); c.innerHTML = h; c.className = "level-summary show";
     document.getElementById("save-e").addEventListener("click", function(){ startSave("e"); }, false);
-    setTimeout(function(){ var b = document.getElementById("scorebar-e"); if(b){b.style.width=pct+"%";b.textContent=cor+"/"+tot+" r&#228;tt ("+pct+"%)";} }, 150);
+    setTimeout(function(){ var b = document.getElementById("scorebar-e"); if(b){b.style.width=pct+"%";b.innerHTML=cor+"/"+tot+" r\u00e4tt ("+pct+"%)";} }, 150);
     c.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
